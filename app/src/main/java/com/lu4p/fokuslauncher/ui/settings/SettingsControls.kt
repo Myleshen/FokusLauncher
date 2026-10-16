@@ -463,6 +463,12 @@ internal fun LauncherFontFamilyDropdown(
     val customImportedFallback = stringResource(R.string.settings_font_custom_imported)
     val customFontLabel =
             customFontDisplayName.trim().ifBlank { customImportedFallback }
+    val cur = currentFamilyName.trim()
+    // Imports use a fresh file name each time, so keep the selected custom value rather than
+    // assuming the legacy fixed one.
+    val customValue =
+            if (LauncherFontPreferences.isCustomFont(cur)) cur
+            else LauncherFontPreferences.CUSTOM_FONT_STORAGE
     val options =
             remember(
                     currentFamilyName,
@@ -474,15 +480,13 @@ internal fun LauncherFontFamilyDropdown(
                 buildList {
                     add("" to systemDefault)
                     if (hasCustomFontFile) {
-                        add(LauncherFontPreferences.CUSTOM_FONT_STORAGE to customFontLabel)
+                        add(customValue to customFontLabel)
                     }
                     val sorted = installedFamilies.sortedWith(String.CASE_INSENSITIVE_ORDER)
                     sorted.forEach { add(it to it) }
-                    val cur = currentFamilyName.trim()
                     if (cur.isNotEmpty() &&
                                     sorted.none { it.equals(cur, ignoreCase = true) } &&
-                                    !(hasCustomFontFile &&
-                                            cur == LauncherFontPreferences.CUSTOM_FONT_STORAGE)
+                                    !(hasCustomFontFile && cur == customValue)
                     ) {
                         val label =
                                 if (LauncherFontPreferences.isCustomFont(cur)) {

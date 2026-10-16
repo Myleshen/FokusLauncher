@@ -341,7 +341,6 @@
     <string name="settings_font_clear_custom">Supprimer la police importée</string>
     <string name="settings_font_custom_imported">Police importée</string>
     <string name="settings_font_import_failed_unreadable">Impossible de lire ce fichier</string>
-    <string name="settings_font_import_failed_extension">Seuls les fichiers .ttf sont autorisés</string>
     <string name="settings_font_import_failed_invalid">Ce fichier n\'est pas une police TrueType valide</string>
     <string name="settings_font_import_failed_io">Impossible d\'enregistrer cette police de caractères</string>
     <string name="cd_restore_archived_app">Restaurer l\'application archivée</string>

@@ -346,7 +346,6 @@
     <string name="settings_section_archived_apps">Aplikazio artxibatutak</string>
     <string name="media_buffering">Kargatzen</string>
     <string name="settings_dot_search_pick_alias_search_app">Aukeratu bilatzeko aplikazioa lasterbide honetarako</string>
-    <string name="settings_font_import_failed_extension">Soilik .ttf artxiboak onartzen dira</string>
     <string name="settings_profile_names_save">Gorde</string>
     <string name="cd_restore_archived_app">Berrezarri artxibatutako aplikazioa</string>
     <string name="settings_font_import_failed_unreadable">Ezin da fitxategia irakurri</string>

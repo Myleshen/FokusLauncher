@@ -19,14 +19,14 @@ sealed class CustomFontImportResult {
 
 enum class CustomFontImportFailure {
     UNREADABLE_URI,
-    INVALID_EXTENSION,
     INVALID_FONT,
     IO_ERROR,
 }
 
 /**
- * Copies user-selected `.ttf` files into app-private storage and resolves them for Compose
- * [androidx.compose.ui.text.font.FontFamily].
+ * Copies user-selected font files (`.ttf` or `.otf`) into app-private storage and resolves them for
+ * Compose [androidx.compose.ui.text.font.FontFamily]. The file content decides validity, not the
+ * name, because file providers hand out missing or misleading extensions.
  */
 @Singleton
 class CustomFontStore
@@ -35,12 +35,11 @@ constructor(@param:ApplicationContext private val context: Context) {
     private val fontsDir: File
         get() = File(context.filesDir, FONTS_DIR_NAME).apply { mkdirs() }
 
-    fun hasStoredFont(): Boolean = storedFontFile().isFile
+    fun hasStoredFont(): Boolean = storedFontFiles().isNotEmpty()
 
-    /** Family name from the stored `.ttf` metadata, if a font file is present. */
+    /** Family name from the stored font metadata, if a font file is present. */
     fun readStoredFontDisplayLabel(): String? {
-        val file = storedFontFile()
-        if (!file.isFile) return null
+        val file = activeFontFile() ?: return null
         return TtfFontMetadataReader.readFamilyDisplayName(file)
     }
 
@@ -54,22 +53,29 @@ constructor(@param:ApplicationContext private val context: Context) {
             withContext(Dispatchers.IO) {
                 val displayName =
                         context.contentResolver.queryDisplayName(uri)
+                                ?: uri.lastPathSegment?.takeIf { it.isNotBlank() }
                                 ?: return@withContext CustomFontImportResult.Failure(
                                         CustomFontImportFailure.UNREADABLE_URI
                                 )
-                if (!isTtfFileName(displayName)) {
-                    return@withContext CustomFontImportResult.Failure(
-                            CustomFontImportFailure.INVALID_EXTENSION
-                    )
-                }
-                val target = storedFontFile()
+                // A fresh file name per import. Reusing one path left the stored preference
+                // unchanged, so re-importing never re-resolved and kept the previous face.
+                val target =
+                        File.createTempFile(
+                                FONT_FILE_PREFIX,
+                                if (displayName.endsWith(".otf", ignoreCase = true)) ".otf"
+                                else ".ttf",
+                                fontsDir,
+                        )
                 try {
                     context.contentResolver.openInputStream(uri)?.use { input ->
                         target.outputStream().use { output -> input.copyTo(output) }
                     }
-                            ?: return@withContext CustomFontImportResult.Failure(
-                                    CustomFontImportFailure.UNREADABLE_URI
-                            )
+                            ?: run {
+                                target.delete()
+                                return@withContext CustomFontImportResult.Failure(
+                                        CustomFontImportFailure.UNREADABLE_URI
+                                )
+                            }
                 } catch (_: IOException) {
                     target.delete()
                     return@withContext CustomFontImportResult.Failure(CustomFontImportFailure.IO_ERROR)
@@ -80,13 +86,14 @@ constructor(@param:ApplicationContext private val context: Context) {
                             CustomFontImportFailure.INVALID_FONT
                     )
                 }
+                fontsDir.listFiles()?.forEach { if (it != target) it.delete() }
                 val displayLabel =
                         TtfFontMetadataReader.readFamilyDisplayName(target)
-                                ?: LauncherFontPreferences.displayLabelFromTtfFileName(
+                                ?: LauncherFontPreferences.displayLabelFromFontFileName(
                                         displayName
                                 )
                 CustomFontImportResult.Success(
-                        storageValue = LauncherFontPreferences.CUSTOM_FONT_STORAGE,
+                        storageValue = LauncherFontPreferences.CUSTOM_FONT_PREFIX + target.name,
                         displayLabel = displayLabel,
                 )
             }
@@ -95,8 +102,11 @@ constructor(@param:ApplicationContext private val context: Context) {
         fontsDir.listFiles()?.forEach { it.delete() }
     }
 
-    private fun storedFontFile(): File =
-            File(fontsDir, LauncherFontPreferences.CUSTOM_FONT_ACTIVE_FILE)
+    private fun storedFontFiles(): List<File> =
+            fontsDir.listFiles()?.filter { it.isFile } ?: emptyList()
+
+    /** Newest stored font; imports and restores keep the directory at one file. */
+    private fun activeFontFile(): File? = storedFontFiles().maxByOrNull { it.lastModified() }
 
     private fun isValidTtfFile(file: File): Boolean =
             runCatching { Typeface.createFromFile(file) }.getOrNull() != null
@@ -115,7 +125,6 @@ constructor(@param:ApplicationContext private val context: Context) {
     companion object {
         const val FONTS_DIR_NAME = "fonts"
 
-        internal fun isTtfFileName(name: String): Boolean =
-                name.trim().endsWith(".ttf", ignoreCase = true)
+        private const val FONT_FILE_PREFIX = "font-"
     }
 }

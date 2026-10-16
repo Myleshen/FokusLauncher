@@ -78,9 +78,14 @@ class ConfigurationBackup @Inject constructor(
                     JSONObject().put("name", it.name)
                 })
         }
-        if (preferences.optString("launcher_font_family") == LauncherFontPreferences.CUSTOM_FONT_STORAGE) {
-            require(fontFile.isFile && fontFile.length() <= MAX_FONT_BYTES)
-            root.put("font", Base64.encodeToString(fontFile.readBytes(), Base64.NO_WRAP))
+        val fontName =
+                LauncherFontPreferences.customFontRelativePath(
+                        preferences.optString("launcher_font_family")
+                )
+        if (fontName != null) {
+            val font = File(fontFile.parentFile, fontName)
+            require(font.isFile && font.length() <= MAX_FONT_BYTES)
+            root.put("font", Base64.encodeToString(font.readBytes(), Base64.NO_WRAP))
         }
         root.toString(2).also { require(it.toByteArray(Charsets.UTF_8).size <= MAX_BYTES) }
     }
@@ -96,7 +101,8 @@ class ConfigurationBackup @Inject constructor(
             if (preferenceTypes[name] == Type.FLOAT) (value as Number).toFloat() else value
         }
         val family = preferences["launcher_font_family"] as? String ?: ""
-        require(!LauncherFontPreferences.isCustomFont(family) || family == LauncherFontPreferences.CUSTOM_FONT_STORAGE)
+        val customFontName = LauncherFontPreferences.customFontRelativePath(family)
+        require(!LauncherFontPreferences.isCustomFont(family) || customFontName != null)
         val font = if (root.has("font")) {
             val bytes = Base64.decode(string(root, "font"), Base64.NO_WRAP)
             require(bytes.size in 1..MAX_FONT_BYTES)
@@ -109,7 +115,7 @@ class ConfigurationBackup @Inject constructor(
             }
             bytes
         } else null
-        require(family != LauncherFontPreferences.CUSTOM_FONT_STORAGE || font != null)
+        require(customFontName == null || font != null)
         return Snapshot(
             preferences,
             rows(root, "hidden") { HiddenAppEntity(string(it, "packageName"), string(it, "profileKey"), string(it, "launcherShortcutId")) },
@@ -129,6 +135,12 @@ class ConfigurationBackup @Inject constructor(
         val dao = database.appDao()
         val previousPreferences = context.fokusLauncherPreferencesDataStore.data.first()
         val previousFont = fontFile.takeIf { it.isFile }?.readBytes()
+        // writeFont always restores to the fixed path, so point the preference at that same name.
+        val restoredPreferences =
+                if (snapshot.font == null) snapshot.preferences
+                else
+                        snapshot.preferences +
+                                ("launcher_font_family" to LauncherFontPreferences.CUSTOM_FONT_STORAGE)
         var preferencesWritten = false
         try {
             writeFont(snapshot.font)
@@ -146,9 +158,11 @@ class ConfigurationBackup @Inject constructor(
                 preferencesWritten = true
                 context.fokusLauncherPreferencesDataStore.edit { preferences ->
                     preferenceTypes.forEach { (name, type) -> type.remove(preferences, name) }
-                    snapshot.preferences.forEach { (name, value) -> preferenceTypes.getValue(name).set(preferences, name, value) }
+                    restoredPreferences.forEach { (name, value) -> preferenceTypes.getValue(name).set(preferences, name, value) }
                 }
             }
+            // Drop any previous import only once the restore has committed.
+            fontFile.parentFile?.listFiles()?.forEach { if (it != fontFile) it.delete() }
         } catch (failure: Throwable) {
             withContext(NonCancellable) {
                 try {

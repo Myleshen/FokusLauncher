@@ -233,7 +233,6 @@
     <string name="settings_matrix_title">Am Chat teilnehmen</string>
     <string name="settings_matrix_subtitle">Hilfe erhalten und Feedback geben</string>
     <string name="settings_font_import_failed_invalid">Datei entspricht keiner gültigen TrueType Schriftart</string>
-    <string name="settings_font_import_failed_extension">Unterstützt nur .ttf-Dateien</string>
     <string name="settings_font_import_failed_unreadable">Datei konnte nicht gelesen werden</string>
     <string name="settings_font_custom_imported">Importierte Schriftart</string>
     <string name="settings_font_clear_custom">Importierte Schriftart entfernen</string>

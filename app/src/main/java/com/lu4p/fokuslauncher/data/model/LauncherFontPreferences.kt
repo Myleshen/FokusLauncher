@@ -17,20 +17,24 @@ object LauncherFontPreferences {
     fun isCustomFont(storageValue: String?): Boolean =
             storageValue?.startsWith(CUSTOM_FONT_PREFIX) == true
 
-    fun customFontRelativePath(storageValue: String): String? =
-            if (!isCustomFont(storageValue)) {
-                null
-            } else {
-                storageValue.removePrefix(CUSTOM_FONT_PREFIX).trim().takeIf { it.isNotEmpty() }
-            }
+    fun customFontRelativePath(storageValue: String): String? {
+        if (!isCustomFont(storageValue)) return null
+        val name = storageValue.removePrefix(CUSTOM_FONT_PREFIX).trim()
+        // Plain file name only: a stored value or an imported backup must not escape the font dir.
+        if (name.isEmpty() || name.contains('/') || name.contains('\\') || name.contains("..")) {
+            return null
+        }
+        return name
+    }
 
-    /** Human-readable label from a picked `.ttf` file name (extension stripped). */
-    fun displayLabelFromTtfFileName(fileName: String): String {
+    /** Human-readable label from a picked font file name (extension stripped). */
+    fun displayLabelFromFontFileName(fileName: String): String {
         val trimmed = fileName.trim()
-        return trimmed
-                .removeSuffix(".ttf")
-                .removeSuffix(".TTF")
-                .ifBlank { trimmed }
+        val withoutExtension =
+                listOf(".ttf", ".otf")
+                        .firstOrNull { trimmed.endsWith(it, ignoreCase = true) }
+                        ?.let { trimmed.dropLast(it.length) }
+        return (withoutExtension ?: trimmed).trim().ifBlank { trimmed }
     }
 
     /**

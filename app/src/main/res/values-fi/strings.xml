@@ -224,7 +224,6 @@
     <string name="settings_font_clear_custom">Poista tuotu fontti</string>
     <string name="settings_font_custom_imported">Tuotu fontti</string>
     <string name="settings_font_import_failed_unreadable">Tiedostoa ei pystytty lukemaan</string>
-    <string name="settings_font_import_failed_extension">Vain .ttf tiedostot ovat tuettuja</string>
     <string name="settings_font_import_failed_invalid">Tiedosto ei ole kunnollinen TrueType fontti</string>
     <string name="settings_font_import_failed_io">Fonttitiedostoa ei pystytty tallentamaan</string>
     <string name="settings_font_size_label">Fonttikoko</string>

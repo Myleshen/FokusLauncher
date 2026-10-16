@@ -26,9 +26,24 @@ class LauncherFontPreferencesTest {
     }
 
     @Test
-    fun `displayLabelFromTtfFileName strips extension as fallback`() {
-        assertEquals("Roboto", LauncherFontPreferences.displayLabelFromTtfFileName("Roboto.ttf"))
-        assertEquals("My Font", LauncherFontPreferences.displayLabelFromTtfFileName("My Font.TTF"))
+    fun `customFontRelativePath rejects values that could escape the font directory`() {
+        // A hand-edited preference or an imported backup must not read outside the font directory.
+        assertEquals(null, LauncherFontPreferences.customFontRelativePath("custom:../outside.ttf"))
+        assertEquals(null, LauncherFontPreferences.customFontRelativePath("custom:/etc/passwd"))
+        assertEquals(null, LauncherFontPreferences.customFontRelativePath("custom:sub/dir.ttf"))
+        assertEquals(null, LauncherFontPreferences.customFontRelativePath("custom:"))
+        assertEquals(
+                "font-123.otf",
+                LauncherFontPreferences.customFontRelativePath("custom:font-123.otf"),
+        )
+    }
+
+    @Test
+    fun `displayLabelFromFontFileName strips ttf and otf extensions as fallback`() {
+        assertEquals("Roboto", LauncherFontPreferences.displayLabelFromFontFileName("Roboto.ttf"))
+        assertEquals("My Font", LauncherFontPreferences.displayLabelFromFontFileName("My Font.TTF"))
+        assertEquals("Inter", LauncherFontPreferences.displayLabelFromFontFileName("Inter.otf"))
+        assertEquals("readme.txt", LauncherFontPreferences.displayLabelFromFontFileName("readme.txt"))
     }
 
     @Test

@@ -92,8 +92,6 @@ fun AppearanceSettingsScreen(
 
     val fontImportFailedUnreadable =
             stringResource(R.string.settings_font_import_failed_unreadable)
-    val fontImportFailedExtension =
-            stringResource(R.string.settings_font_import_failed_extension)
     val fontImportFailedInvalid = stringResource(R.string.settings_font_import_failed_invalid)
     val fontImportFailedIo = stringResource(R.string.settings_font_import_failed_io)
     val fontPickerLauncher =
@@ -105,8 +103,6 @@ fun AppearanceSettingsScreen(
                                 when (failure) {
                                     CustomFontImportFailure.UNREADABLE_URI ->
                                             fontImportFailedUnreadable
-                                    CustomFontImportFailure.INVALID_EXTENSION ->
-                                            fontImportFailedExtension
                                     CustomFontImportFailure.INVALID_FONT -> fontImportFailedInvalid
                                     CustomFontImportFailure.IO_ERROR -> fontImportFailedIo
                                     null -> null
@@ -190,7 +186,10 @@ fun AppearanceSettingsScreen(
                             fontPickerLauncher.launch(
                                     arrayOf(
                                             "font/ttf",
+                                            "font/otf",
                                             "application/x-font-ttf",
+                                            "application/x-font-otf",
+                                            "application/x-font-opentype",
                                             "application/font-sfnt",
                                             "application/octet-stream",
                                     )

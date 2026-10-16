@@ -361,7 +361,6 @@
     <string name="settings_font_clear_custom">Usuń zaimportowaną czcionkę</string>
     <string name="settings_font_custom_imported">Zaimportowana czcionka</string>
     <string name="settings_font_import_failed_unreadable">Nie udało się odczytać tego pliku</string>
-    <string name="settings_font_import_failed_extension">Obsługiwane są tylko pliki .ttf</string>
     <string name="settings_font_import_failed_invalid">To nie jest prawidłowy plik czcionki TrueType</string>
     <string name="settings_font_import_failed_io">Nie udało się zapisać pliku czcionki</string>
     <string name="cd_restore_archived_app">Przywróć zarchiwizowaną aplikację</string>

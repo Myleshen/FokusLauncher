@@ -297,7 +297,6 @@
     <string name="onboarding_welcome_title">Fokus Launcher</string>
     <string name="cd_open_subpage">Új képernyő megnyitása</string>
     <string name="settings_app_picker_title">Alkalmazás kiválasztása</string>
-    <string name="settings_font_import_failed_extension">Csak .ttf fájlok támogatottak</string>
     <string name="settings_weather_location_enable_button">Engedélyezés</string>
     <string name="settings_matrix_subtitle">Kérjen segítséget és küldjön visszajelzést</string>
     <string name="settings_section_hidden_apps">Rejtett alkalmazások</string>

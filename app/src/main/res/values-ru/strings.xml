@@ -321,7 +321,6 @@
     <string name="settings_font_import_ttf_subtitle">Используйте файл шрифта TrueType с вашего устройства</string>
     <string name="settings_export_logs_subtitle">Поделиться логом об ошибках</string>
     <string name="settings_font_import_failed_unreadable">Не удалось прочитать этот файл</string>
-    <string name="settings_font_import_failed_extension">Поддерживаются только шрифты .ttf</string>
     <string name="settings_drawer_scroll_to_top_auto_keyboard_subtitle">Автоматически открывать клавиатуру и поиск при достижении верха списка приложений</string>
     <string name="settings_font_size_subtitle">Применяется вместе с размером шрифта устройства</string>
     <string name="settings_show_home_media">Показывать элементы управления медиа</string>

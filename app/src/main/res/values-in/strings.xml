@@ -344,7 +344,6 @@
     <string name="settings_font_clear_custom">Hapus font yang diimpor</string>
     <string name="settings_section_archived_apps">Aplikasi yang diarsipkan</string>
     <string name="media_buffering">Menyangga</string>
-    <string name="settings_font_import_failed_extension">Hanya file .ttf yang didukung</string>
     <string name="cd_restore_archived_app">Pulihkan aplikasi yang diarsipkan</string>
     <string name="settings_font_import_failed_unreadable">Tidak dapat membaca file tersebut</string>
     <string name="media_next_track">Trek berikutnya</string>
